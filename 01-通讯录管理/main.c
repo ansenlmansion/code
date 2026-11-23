@@ -21,6 +21,9 @@ typedef struct {
     int age; // 年龄
 } Contact; 
 
+// 前置声明：printContact 定义在 modifyContact 之后，调用前必须先声明
+bool printContact(Contact contact);
+
 /*函数功能：计算联系人年龄
   输入参数：const Contact* contact（联系人信息指针）、int* age（年龄指针）
   返回值：成功返回true，失败返回false,bool类型
@@ -54,12 +57,13 @@ typedef struct Node {
 */
 Node* initContactList() {
     Node* head = (Node*)malloc(sizeof(Node));
-    if (head == NULL) 
+    if (head == NULL) {
         fprintf(stderr, "内存分配失败\n");
-    else
-        head->next = NULL;
+        return NULL;
+    }
+    head->next = NULL;
     return head;
-}
+}       
 //13
 /*函数功能：查找指定联系人的前驱节点
   输入参数：Node* head（通讯录链表头节点指针）、char* name（指定联系人姓名）
@@ -92,6 +96,7 @@ bool addContact(Node* head, Contact data) {
     node->data = data;
     node->next = head->next;
     head->next = node;
+    printf("联系人添加成功。（头插）\n");
     return true;
 }
 //2
@@ -112,6 +117,7 @@ bool addContactAtTail(Node* head, Contact data) {
         current = current->next;
     }
     current->next = node;
+    printf("联系人添加成功。（尾插）\n");
     return true;
 }
 //3
@@ -129,6 +135,7 @@ bool deleteContact(Node* head, const char* name) {
             Node* temp = current->next;
             current->next = temp->next;
             free(temp);
+            printf("联系人删除成功。\n");
             return true;
         }
         current = current->next;
@@ -149,6 +156,7 @@ bool deleteContactAfter(Node* head, const char* name) {
     Node* target = predecessor->next->next;
     predecessor->next->next = target->next;
     free(target);
+    printf("联系人删除成功。\n");
     return true;
 }
 
@@ -171,6 +179,7 @@ bool deleteContactBefore(Node* head, const char* name) {
     beforePredecessor->next = predecessor->next;
     Node* temp = predecessor;
     free(temp);
+    printf("联系人删除成功。\n");
     return true;
 }
 //6
@@ -178,11 +187,12 @@ bool deleteContactBefore(Node* head, const char* name) {
   输入参数：Node* head（通讯录链表头节点指针）、char*   name（要修改的联系人姓名）、Contact newData（新的联系人信息）
   返回值：成功返回true，失败返回false,bool类型
 */
-bool modifyContact(Node* head, char* name, Contact newData) {
+bool modifyContact(Node* head,const char* name, Contact newData) {
     Node* current = head->next;
     while (current != NULL) {
         if (strcmp(current->data.name, name) == 0) {
             current->data = newData;
+            printContact(current->data);
             return true;
         }
         current = current->next;
@@ -191,7 +201,7 @@ bool modifyContact(Node* head, char* name, Contact newData) {
 }
 //7
 /*函数功能：查询通讯录链表中的联系人信息（姓名）
-  输入参数：Node* head（通讯录链表头节点指针）、char name[]（要查询的联系人姓名）          
+  输入参数：Node* head（通讯录链表头节点指针）、const char* name（要查询的联系人姓名）          
   返回值：成功返回地址，失败返回空指针,void*类型
 */
 Contact* searchContact(Node* head, const char* name) {
@@ -206,7 +216,7 @@ Contact* searchContact(Node* head, const char* name) {
 }
 //8
 /*函数功能：查询通讯录链表中的联系人信息（电话号码）
-  输入参数：Node* head（通讯录链表头节点指针）、char phone[]（要查询的联系人电话号码）          
+  输入参数：Node* head（通讯录链表头节点指针）、const char* phone（要查询的联系人电话号码）          
   返回值：成功返回地址，失败返回空指针,void*类型
 */
 Contact* searchContactByPhone(Node* head, const char* phone) {
@@ -238,6 +248,10 @@ bool printContact(Contact contact) {
 */
 bool printAllContacts(Node* head) {
     Node* current = head->next;
+    if(current == NULL) {
+        printf("通讯录为空。\n");
+        return true;
+    }
     while (current != NULL) {
         printContact(current->data);
         current = current->next;
@@ -246,10 +260,10 @@ bool printAllContacts(Node* head) {
 }
 //11
 /*函数功能：在指定联系人后面插入新的联系人信息
-  输入参数：Node* head（通讯录链表头节点指针）、char* name（指定联系人姓名）、Contact newData（新的联系人信息）
+  输入参数：Node* head（通讯录链表头节点指针）、const char* name（指定联系人姓名）、Contact newData（新的联系人信息）
   返回值：成功返回true，失败返回false,bool类型
 */
-bool insertContactAfter(Node* head, char* name, Contact newData) {
+bool insertContactAfter(Node* head,const char* name, Contact newData) {
     Node* current = head->next;// 从第一个节点开始查找指定联系人
     while (current != NULL) {
         if (strcmp(current->data.name, name) == 0) {
@@ -261,6 +275,7 @@ bool insertContactAfter(Node* head, char* name, Contact newData) {
             node->data = newData;// 将新的联系人信息赋值给新节点
             node->next = current->next;// 将新节点的next指针指向当前节点的下一个节点
             current->next = node;// 将当前节点的next指针指向新节点，实现插入操作
+            printf("联系人插入成功。\n");
             return true;
         }
         current = current->next;// 继续查找下一个节点
@@ -269,23 +284,24 @@ bool insertContactAfter(Node* head, char* name, Contact newData) {
 }
 //12
 /*函数功能：在指定联系人前面插入新的联系人信息
-  输入参数：Node* head（通讯录链表头节点指针）、char* name（指定联系人姓名）
-  返回值：成功返回前驱节点指针，失败返回空指针
+  输入参数：Node* head（通讯录链表头节点指针）、const char* name（指定联系人姓名）
+  返回值：成功返回true，失败返回false
 */
-Node* insertContactBefore(Node* head, char* name, Contact newData) {
+bool insertContactBefore(Node* head, const char* name, Contact newData) {
     Node* pred = findPredecessor(head, name);
     if (pred == NULL) {
-        return NULL; // 未找到指定联系人
+        return false; // 未找到指定联系人
     }
     Node* node = (Node*)malloc(sizeof(Node));// 创建新的联系人节点
     if (node == NULL) {
         fprintf(stderr, "内存分配失败\n");
-        return NULL;
+        return false;
     }
     node->data = newData;// 将新的联系人信息赋值给新节点
     node->next = pred->next;// 将新节点的next指针指向前驱节点的下一个节点
     pred->next = node;// 将前驱节点的next指针指向新节点，实现插入操作
-    return pred;
+    printf("联系人插入成功。\n");
+    return true;
 }
 void manageContacts(Node* head) {
     int choice;
@@ -306,6 +322,7 @@ void manageContacts(Node* head) {
         printf("11. 删除指定联系人前面联系人的信息\n");
         printf("12. 查找指定联系人的前驱节点\n");
         printf("13. 退出\n");
+        printf("=================================\n");
         scanf("%d", &choice);
         switch (choice) {
             case 1:
@@ -329,7 +346,11 @@ void manageContacts(Node* head) {
                 // 删除联系人
                 printf("请输入要删除的联系人姓名: ");
                 scanf("%49s", contact.name);
-                deleteContact(head, contact.name);
+                if (!deleteContact(head, contact.name)) {
+                    printf("未找到要删除的联系人。\n");
+                } else {
+                    printf("联系人删除成功。\n");
+                }
                 break;
             case 3:
                 // 修改联系人信息
@@ -346,7 +367,11 @@ void manageContacts(Node* head) {
                 if (!calculateAge(&contact, &contact.age)) {
                     break;
                 }
-                modifyContact(head, contact.name, contact);
+                if (!modifyContact(head, contact.name, contact)) {
+                    printf("未找到要修改的联系人。\n");
+                } else {
+                    printf("联系人信息修改成功。\n");
+                } 
                 break;
             case 4:
                 // 查询联系人信息（姓名）
@@ -356,10 +381,7 @@ void manageContacts(Node* head) {
                 if (found != NULL) {
                     contact = *found;
                     printf("找到联系人信息:\n");
-                    printf("姓名: %s\n", contact.name);
-                    printf("电话号码: %s\n", contact.phone);
-                    printf("出生日期: %d-%d-%d\n", contact.birthday.year, contact.birthday.month, contact.birthday.day);
-                    printf("年龄: %d\n", contact.age);
+                    printContact(contact);
                 } else {
                     printf("未找到该联系人。\n");
                 }
@@ -372,10 +394,7 @@ void manageContacts(Node* head) {
                 if (found != NULL) {
                     contact = *found;
                     printf("找到联系人信息:\n");
-                    printf("姓名: %s\n", contact.name);
-                    printf("电话号码: %s\n", contact.phone);
-                    printf("出生日期: %d-%d-%d\n", contact.birthday.year, contact.birthday.month, contact.birthday.day);
-                    printf("年龄: %d\n", contact.age);
+                    printContact(contact);
                 } else {
                     printf("未找到该联系人。\n");
                 }
@@ -388,10 +407,7 @@ void manageContacts(Node* head) {
                 if (found != NULL) {
                     contact = *found;
                     printf("联系人信息:\n");
-                    printf("姓名: %s\n", contact.name);
-                    printf("电话号码: %s\n", contact.phone);
-                    printf("出生日期: %d-%d-%d\n", contact.birthday.year, contact.birthday.month, contact.birthday.day);
-                    printf("年龄: %d\n", contact.age);
+                    printContact(contact);
                 } else {
                     printf("未找到该联系人。\n");
                 }
@@ -444,7 +460,7 @@ void manageContacts(Node* head) {
                 if (!calculateAge(&contact, &contact.age)) {
                     break;
                 }
-                if (insertContactBefore(head, targetName, contact) == NULL) {
+                if (!insertContactBefore(head, targetName, contact)) {
                     printf("未找到指定联系人或内存分配失败，插入失败。\n");
                 }
                 break;
@@ -490,10 +506,10 @@ void manageContacts(Node* head) {
     }
 }
 
-
 int main() {
     Node* contactList = initContactList();
     if (contactList == NULL) {
+        printf("初始化通讯录失败。\n");
         return EXIT_FAILURE;
     }
     manageContacts(contactList);
@@ -503,5 +519,6 @@ int main() {
         free(temp);
     }
     free(contactList);
+    printf("通讯录已清空，程序退出。\n");
     return 0;
 }

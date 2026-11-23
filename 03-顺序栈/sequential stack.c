@@ -29,7 +29,7 @@ Stack initStack(int maxsize){
 int isEmpty(Stack s) {
     return s->top == -1; //栈顶指针为-1表示栈为空
 }
-//判断顺序栈是否已满
+//判断顺序 栈是否已满
 int isFull(Stack s){
     return s->top == s->maxsize - 1; //栈顶指针等于最大容量减1表示栈已满
 }
